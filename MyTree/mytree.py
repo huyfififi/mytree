@@ -1,6 +1,6 @@
 import os
 
-import display
+from myTree import display
 
 
 class TreeNode():
@@ -12,15 +12,12 @@ class TreeNode():
         self.depth = 0
 
     def buildTree(self, ignore_hidden=True):
-        print('PARENT:', self.val)
         listdir = os.listdir(self.val)
         if ignore_hidden:
             listdir = [x for x in listdir if x[0] != '.']
         listdir = [self.val + '/' + x for x in listdir]
-        print(listdir)
 
         for child in listdir:
-            print(child)
             node = TreeNode(val=child)
             node.depth = self.depth + 1
             if os.path.isdir(node.val):
@@ -41,11 +38,7 @@ class TreeNode():
         pass
 
 
-if __name__ == '__main__':
+def main():
     root = TreeNode(val=os.getcwd())
     root.buildTree()
-    print('-'*80)
-    print(root.children)
-    for child in root.children:
-        print(child.val)
     root.dfs()
