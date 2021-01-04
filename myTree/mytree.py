@@ -16,6 +16,7 @@ class TreeNode():
         self.depth = 0
         self.is_lastoflist = False
         self.last_count = 0
+        self.parents_last = []
 
     def buildTree(self, ignore_hidden=True):
         listdir = os.listdir(self.val)
@@ -34,17 +35,23 @@ class TreeNode():
                 node.last_count = self.last_count + 1
             else:
                 node.last_count = self.last_count
+            node.parents_last = self.parents_last.copy()
+            node.parents_last.append(self.is_lastoflist)
+
             if os.path.isdir(node.val):
                 node.buildTree(ignore_hidden=ignore_hidden)
+
             self.children.append(node)
 
     def dfs(self):
+        self.parents_last = self.parents_last[1:]
         prefix = ''
-        prefix = '│' + ' '*(SPACE-1)
-        prefix = prefix * (self.depth-1-self.last_count)
+        for is_last in self.parents_last:
+            if is_last:
+                prefix = prefix + ' '*(SPACE)
+            else:
+                prefix = prefix + '│' + ' '*(SPACE-1)
         if self.depth > 0:
-            if self.depth > 1:
-                prefix = prefix + (' '*(SPACE))*self.last_count
             if self.is_lastoflist:
                 prefix = prefix + '└' + '─'*(SPACE-2) + ' '
             else:
@@ -53,7 +60,7 @@ class TreeNode():
         es = display.EscapeSequence()
         if os.path.isdir(self.val):
             es.setCharCyan()
-        print(self.val.split('/')[-1], self.last_count, self.is_lastoflist)
+        print(self.val.split('/')[-1], self.parents_last)
         if os.path.isdir(self.val):
             es.resetChar()
         for child in self.children:
