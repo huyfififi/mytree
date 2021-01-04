@@ -51,7 +51,10 @@ class TreeNode():
         es = display.EscapeSequence()
         if os.path.isdir(self.val):
             es.setCharCyan()
-        print(self.val.split('/')[-1])
+        s = self.val.split('/')[-1]
+        if os.getcwd() == self.val:
+            s = s + ' (./)'
+        print(s)
         if os.path.isdir(self.val):
             es.resetChar()
         for child in self.children:
