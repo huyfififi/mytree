@@ -1,3 +1,4 @@
+import argparse
 import os
 
 from myTree import display
@@ -61,7 +62,29 @@ class TreeNode():
             child.dfs()
 
 
+def parse():
+    usage = 'mytree [ROOT DIRECTORY]'
+    parser = argparse.ArgumentParser(usage=usage)
+    parser.add_argument(
+        'root',
+        nargs='?',
+        help='root directory')
+
+    args = parser.parse_args()
+    return args
+
+
 def main():
-    root = TreeNode(val=os.getcwd())
+    args = parse()
+    if args.root is None:
+        args.root = os.getcwd()
+    else:
+        # Absolute path
+        if args.root[0] == '/':
+            pass
+        # Relative path
+        else:
+            args.root = os.getcwd() + '/' + args.root
+    root = TreeNode(val=args.root)
     root.buildTree()
     root.dfs()
