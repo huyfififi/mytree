@@ -13,7 +13,7 @@ class TreeNode():
         self.val = val
         self.children = []
         self.is_lastoflist = False
-        self.parents_last = []
+        self.parents_islast = []
 
     def buildTree(self, ignore_hidden=True):
         listdir = os.listdir(self.val)
@@ -26,8 +26,8 @@ class TreeNode():
             node = TreeNode(val=child)
             if i == len(listdir)-1:
                 node.is_lastoflist = True
-            node.parents_last = self.parents_last.copy()
-            node.parents_last.append(self.is_lastoflist)
+            node.parents_islast = self.parents_islast.copy()
+            node.parents_islast.append(self.is_lastoflist)
 
             if os.path.isdir(node.val):
                 node.buildTree(ignore_hidden=ignore_hidden)
@@ -35,8 +35,8 @@ class TreeNode():
             self.children.append(node)
 
     def dfs(self):
-        depth = len(self.parents_last)
-        list_lasts = self.parents_last[1:]
+        depth = len(self.parents_islast)
+        list_lasts = self.parents_islast[1:]
         prefix = ''
         for is_last in list_lasts:
             if is_last:
