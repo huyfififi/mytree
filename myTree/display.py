@@ -45,6 +45,10 @@ class EscapeSequence:
     def setCharWhite(self):
         print('\033[37m', end='')
 
+    def setCharN(self, n: int):
+        string = '\033[38;5;' + str(n) + 'm'
+        print(string, end='')
+
     def resetChar(self):
         print('\033[39m', end='')
 
@@ -74,3 +78,13 @@ class EscapeSequence:
 
     def resetBack(self):
         print('\033[49m', end='')
+
+    def showAllColor(self):
+        for i in range(256):
+            print('\033[38;5;', i, 'm', sep='', end='')
+            print(i, '\thoge ', end='')
+            print('\033[39m', end='')
+            print('\033[48;5;', i, 'm', sep='', end='')
+            print(' '*4, end='')
+            print('\033[49m', end='')
+            print()

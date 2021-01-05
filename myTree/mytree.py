@@ -51,7 +51,8 @@ class TreeNode():
         print(prefix, end='')
         es = display.EscapeSequence()
         if os.path.isdir(self.val):
-            es.setCharCyan()
+            es.setCharN(211)
+            es.setCharBold()
         s = self.val.split('/')[-1]
         if os.getcwd() == self.val:
             s = s + ' (./)'
