@@ -63,12 +63,17 @@ class TreeNode():
 
 
 def parse():
-    usage = 'mytree [ROOT DIRECTORY]'
+    usage = 'mytree [ROOT DIRECTORY] [-a --show-hidden]'
     parser = argparse.ArgumentParser(usage=usage)
     parser.add_argument(
         'root',
         nargs='?',
         help='root directory')
+    parser.add_argument(
+        '-a',
+        '--show-hidden',
+        action='store_true',
+        help='also show hidden files')
 
     args = parser.parse_args()
     return args
@@ -86,5 +91,8 @@ def main():
         else:
             args.root = os.getcwd() + '/' + args.root
     root = TreeNode(val=args.root)
-    root.buildTree()
+    if args.show_hidden:
+        root.buildTree(ignore_hidden=False)
+    else:
+        root.buildTree(ignore_hidden=True)
     root.dfs()
