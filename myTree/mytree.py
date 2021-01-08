@@ -35,8 +35,10 @@ class TreeNode():
 
             self.children.append(node)
 
-    def dfs(self):
+    def dfs(self, max_depth=None):
         depth = len(self.parents_islast)
+        if max_depth is not None and depth > max_depth:
+            return
         list_lasts = self.parents_islast[1:]
         prefix = ''
         for is_last in list_lasts:
@@ -61,11 +63,11 @@ class TreeNode():
         if os.path.isdir(self.val):
             es.resetChar()
         for child in self.children:
-            child.dfs()
+            child.dfs(max_depth=max_depth)
 
 
 def parse():
-    usage = 'mytree [ROOT DIRECTORY] [-a --show-hidden]'
+    usage = 'mytree [ROOT DIRECTORY] [-a --show-hidden] [-d --depth]'
     parser = argparse.ArgumentParser(usage=usage)
     parser.add_argument(
         'root',
@@ -82,6 +84,12 @@ def parse():
         action='version',
         version=myTree.__version__,
         help='print product version and exit')
+    parser.add_argument(
+        '-d',
+        '--depth',
+        nargs='?',
+        type=int,
+        help='set the maximum depth to show in graph')
 
     args = parser.parse_args()
     return args
@@ -103,4 +111,4 @@ def main():
         root.buildTree(ignore_hidden=False)
     else:
         root.buildTree(ignore_hidden=True)
-    root.dfs()
+    root.dfs(max_depth=args.depth)
