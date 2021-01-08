@@ -1,6 +1,7 @@
 import argparse
 import os
 
+import myTree
 from myTree import display
 
 
@@ -75,6 +76,12 @@ def parse():
         '--show-hidden',
         action='store_true',
         help='also show hidden files')
+    parser.add_argument(
+        '-v',
+        '--version',
+        action='version',
+        version=myTree.__version__,
+        help='print product version and exit')
 
     args = parser.parse_args()
     return args
