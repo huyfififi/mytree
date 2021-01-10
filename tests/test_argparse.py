@@ -7,7 +7,7 @@ class TestArgparse(unittest.TestCase):
 
     def setUp(self):
         self.test_cases = [
-            # argv: [root directory, show_hidden]
+            # argv, [root directory, show_hidden, depth]
             [['mytree'], [None, False, None]],
             [['mytree', '.'], ['.', False, None]],
             [['mytree', '-a'], [None, True, None]],
