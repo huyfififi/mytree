@@ -1,11 +1,8 @@
-import sys
 import unittest
 
 from myTree import mytree
 
 
-# Need improvement
-# How about Dependency Injection?
 class TestArgparse(unittest.TestCase):
 
     def setUp(self):
@@ -22,8 +19,7 @@ class TestArgparse(unittest.TestCase):
     def testArgparse(self):
 
         for argv, expected in self.test_cases:
-            sys.argv = argv
-            args = mytree.parse()
+            args = mytree.parse(argv=argv)
             self.assertEqual(args.root, expected[0])
             self.assertEqual(args.show_hidden, expected[1])
             self.assertEqual(args.depth, expected[2])

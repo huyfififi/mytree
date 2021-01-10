@@ -1,5 +1,6 @@
 import argparse
 import os
+import sys
 
 import myTree
 from myTree import display
@@ -66,8 +67,7 @@ class TreeNode():
             child.dfs(max_depth=max_depth)
 
 
-# How about Dependency Injection?
-def parse():
+def parse(argv=sys.argv):
     usage = 'mytree [ROOT DIRECTORY] [-a --show-hidden] [-d --depth]'
     parser = argparse.ArgumentParser(usage=usage)
     parser.add_argument(
@@ -91,7 +91,7 @@ def parse():
         type=int,
         help='set the maximum depth to show in graph')
 
-    args = parser.parse_args()
+    args = parser.parse_args(argv[1:])
     return args
 
 
