@@ -11,11 +11,12 @@ SPACE = 4
 
 class TreeNode():
 
-    def __init__(self, val=None):
+    def __init__(self, val=None, es=None):
         self.val = val
         self.children = []
         self.is_lastoflist = False
         self.parents_islast = []
+        self.es = es
 
     def buildTree(self, ignore_hidden=True):
         listdir = os.listdir(self.val)
@@ -30,6 +31,7 @@ class TreeNode():
                 node.is_lastoflist = True
             node.parents_islast = self.parents_islast.copy()
             node.parents_islast.append(self.is_lastoflist)
+            node.es = self.es
 
             if os.path.isdir(node.val):
                 node.buildTree(ignore_hidden=ignore_hidden)
@@ -55,8 +57,8 @@ class TreeNode():
         print(prefix, end='')
         es = display.EscapeSequence()
         if os.path.isdir(self.val):
-            es.setCharN(211)
-            es.setCharBold()
+            self.es.setCharN(211)
+            self.es.setCharBold()
         s = self.val.split('/')[-1]
         if os.getcwd() == self.val:
             s = s + ' (./)'
@@ -106,7 +108,7 @@ def main():
         # Relative path
         else:
             args.root = os.getcwd() + '/' + args.root
-    root = TreeNode(val=args.root)
+    root = TreeNode(val=args.root, es=display.EscapeSequence())
     if args.show_hidden:
         root.buildTree(ignore_hidden=False)
     else:
