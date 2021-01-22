@@ -18,10 +18,12 @@ class TreeNode():
         self.parents_islast = []
         self.es = es
 
-    def buildTree(self, ignore_hidden=True):
+    def buildTree(self, ignore_hidden=True, ignore_regular=False):
         listdir = os.listdir(self.val)
         if ignore_hidden:
             listdir = [x for x in listdir if x[0] != '.']
+        if ignore_regular:
+            listdir = [x for x in listdir if x[0] == '.']
         listdir = [self.val + '/' + x for x in listdir]
 
         for i in range(len(listdir)):
@@ -34,7 +36,7 @@ class TreeNode():
             node.es = self.es
 
             if os.path.isdir(node.val):
-                node.buildTree(ignore_hidden=ignore_hidden)
+                node.buildTree(ignore_hidden=ignore_hidden, ignore_regular=ignore_regular)
 
             self.children.append(node)
 
@@ -82,6 +84,10 @@ def parse(argv=sys.argv):
         action='store_true',
         help='also show hidden files')
     parser.add_argument(
+        '--only-hidden',
+        action='store_true',
+        help='show only hidden files')
+    parser.add_argument(
         '-v',
         '--version',
         action='version',
@@ -109,8 +115,14 @@ def main():
         else:
             args.root = os.getcwd() + '/' + args.root
     root = TreeNode(val=args.root, es=display.EscapeSequence())
+
+    ignore_hidden = True
+    ignore_regular = False
     if args.show_hidden:
-        root.buildTree(ignore_hidden=False)
-    else:
-        root.buildTree(ignore_hidden=True)
+        ignore_hidden = False
+    if args.only_hidden:
+        ignore_hidden = False
+        ignore_regular = True
+
+    root.buildTree(ignore_hidden=ignore_hidden, ignore_regular=ignore_regular)
     root.dfs(max_depth=args.depth)
