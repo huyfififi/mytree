@@ -104,7 +104,7 @@ class TreeNode():
 
 
 def parse(argv=sys.argv):
-    usage = 'mytree [ROOT DIRECTORY] [-a --show-hidden] [-d --depth] [--only-hidden] [--find-hidden]'
+    usage = 'mytree [ROOT_DIRECTORY] [-a --show-hidden] [-d --depth DEPTH] [--only-hidden] [--find-hidden]'
     parser = argparse.ArgumentParser(usage=usage)
     parser.add_argument(
         'root',
@@ -163,6 +163,7 @@ def main():
         ignore_hidden = False
 
     root.buildTree(ignore_hidden=ignore_hidden, ignore_regular=ignore_regular)
+    # The process for --find-hidden seems not efficient
     if args.find_hidden:
         root.setHasHiddenChild()
         root.pruneRegularFile()
