@@ -42,16 +42,6 @@ class TreeNode():
 
             self.children.append(node)
 
-    def resetAttribute_dfs(self, parents_islast=None, is_lastoflist=None):
-        if parents_islast:
-            self.parents_islast = parents_islast
-            for child in self.children:
-                child.resetAttribute_dfs(parents_islast=parents_islast)
-        if is_lastoflist:
-            self.is_lastoflist = is_lastoflist
-            for child in self.children:
-                child.resetAttribute_dfs(is_lastoflist=is_lastoflist)
-
     def setHasHiddenChild(self):
 
         if len(self.children) == 0:
