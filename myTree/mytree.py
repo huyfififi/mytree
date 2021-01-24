@@ -13,10 +13,12 @@ class TreeNode():
 
     def __init__(self, val=None, es=None):
         self.val = val
+        self.filename = self.val.split('/')[-1] if self.val else None
         self.children = []
         self.is_lastoflist = False
         self.parents_islast = []
         self.es = es
+        self.has_hidden = None
 
     def buildTree(self, ignore_hidden=True, ignore_regular=False):
         listdir = os.listdir(self.val)
@@ -40,7 +42,49 @@ class TreeNode():
 
             self.children.append(node)
 
-    def dfs(self, max_depth=None):
+    def resetAttribute_dfs(self, parents_islast=None, is_lastoflist=None):
+        if parents_islast:
+            self.parents_islast = parents_islast
+            for child in self.children:
+                child.resetAttribute_dfs(parents_islast=parents_islast)
+        if is_lastoflist:
+            self.is_lastoflist = is_lastoflist
+            for child in self.children:
+                child.resetAttribute_dfs(is_lastoflist=is_lastoflist)
+
+    def setHasHiddenChild(self):
+
+        if len(self.children) == 0:
+            if self.filename[0] == '.':
+                self.has_hidden = True
+            else:
+                self.has_hidden = False
+        else:
+            self.has_hidden = False
+            for child in self.children:
+                child.setHasHiddenChild()
+                self.has_hidden = self.has_hidden or child.has_hidden
+
+    def pruneRegularFile(self):
+        new_children = []
+        for child in self.children:
+            child.pruneRegularFile()
+            if child.has_hidden:
+                new_children.append(child)
+        self.children = new_children
+
+    def setLastAgain(self):
+        if len(self.children) == 0:
+            return
+        else:
+            for i in range(len(self.children)):
+                self.children[i].is_lastoflist = False
+                if i == len(self.children)-1:
+                    self.children[i].is_lastoflist = True
+                self.children[i].parents_islast = self.parents_islast.copy()
+                self.children[i].parents_islast.append(self.is_lastoflist)
+
+    def dfs(self, max_depth=None, find_hidden=None):
         depth = len(self.parents_islast)
         if max_depth is not None and depth > max_depth:
             return
@@ -61,14 +105,13 @@ class TreeNode():
         if os.path.isdir(self.val):
             self.es.setCharN(211)
             self.es.setCharBold()
-        s = self.val.split('/')[-1]
         if os.getcwd() == self.val:
-            s = s + ' (./)'
-        print(s)
+            self.filename = self.filename + ' (./)'
+        print(self.filename, self.is_lastoflist)
         if os.path.isdir(self.val):
             es.resetChar()
         for child in self.children:
-            child.dfs(max_depth=max_depth)
+            child.dfs(max_depth=max_depth, find_hidden=find_hidden)
 
 
 def parse(argv=sys.argv):
@@ -87,6 +130,10 @@ def parse(argv=sys.argv):
         '--only-hidden',
         action='store_true',
         help='show only hidden files')
+    parser.add_argument(
+        '--find-hidden',
+        action='store_true',
+        help='show only hidden files except for directories')
     parser.add_argument(
         '-v',
         '--version',
@@ -123,6 +170,14 @@ def main():
     if args.only_hidden:
         ignore_hidden = False
         ignore_regular = True
+    if args.find_hidden:
+        ignore_hidden = False
 
     root.buildTree(ignore_hidden=ignore_hidden, ignore_regular=ignore_regular)
-    root.dfs(max_depth=args.depth)
+    if args.find_hidden:
+        root.setHasHiddenChild()
+        root.pruneRegularFile()
+        root.resetAttribute_dfs(parents_islast=[])
+        root.resetAttribute_dfs(is_lastoflist=False)
+        root.setLastAgain()
+    root.dfs(max_depth=args.depth, find_hidden=args.find_hidden)
