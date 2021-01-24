@@ -73,7 +73,7 @@ class TreeNode():
                 self.children[i].parents_islast.append(self.is_lastoflist)
                 self.children[i].setLastAgain()
 
-    def dfs(self, max_depth=None):
+    def printTree(self, max_depth=None):
         depth = len(self.parents_islast)
         if max_depth is not None and depth > max_depth:
             return
@@ -100,11 +100,11 @@ class TreeNode():
         if os.path.isdir(self.val):
             es.resetChar()
         for child in self.children:
-            child.dfs(max_depth=max_depth)
+            child.printTree(max_depth=max_depth)
 
 
 def parse(argv=sys.argv):
-    usage = 'mytree [ROOT DIRECTORY] [-a --show-hidden] [-d --depth]'
+    usage = 'mytree [ROOT DIRECTORY] [-a --show-hidden] [-d --depth] [--only-hidden] [--find-hidden]'
     parser = argparse.ArgumentParser(usage=usage)
     parser.add_argument(
         'root',
@@ -118,11 +118,11 @@ def parse(argv=sys.argv):
     parser.add_argument(
         '--only-hidden',
         action='store_true',
-        help='show only hidden files')
+        help='show only hidden paths')
     parser.add_argument(
         '--find-hidden',
         action='store_true',
-        help='show only hidden files except for directories')
+        help='find hidden files')
     parser.add_argument(
         '-v',
         '--version',
@@ -167,4 +167,4 @@ def main():
         root.setHasHiddenChild()
         root.pruneRegularFile()
         root.setLastAgain()
-    root.dfs(max_depth=args.depth)
+    root.printTree(max_depth=args.depth)
