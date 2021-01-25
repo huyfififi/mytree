@@ -13,15 +13,19 @@ class TreeNode():
 
     def __init__(self, val=None, es=None):
         self.val = val
+        self.filename = self.val.split('/')[-1] if self.val else None
         self.children = []
         self.is_lastoflist = False
         self.parents_islast = []
         self.es = es
+        self.has_hidden = None
 
-    def buildTree(self, ignore_hidden=True):
+    def buildTree(self, ignore_hidden=True, ignore_regular=False):
         listdir = os.listdir(self.val)
         if ignore_hidden:
             listdir = [x for x in listdir if x[0] != '.']
+        if ignore_regular:
+            listdir = [x for x in listdir if x[0] == '.']
         listdir = [self.val + '/' + x for x in listdir]
 
         for i in range(len(listdir)):
@@ -34,11 +38,42 @@ class TreeNode():
             node.es = self.es
 
             if os.path.isdir(node.val):
-                node.buildTree(ignore_hidden=ignore_hidden)
+                node.buildTree(ignore_hidden=ignore_hidden, ignore_regular=ignore_regular)
 
             self.children.append(node)
 
-    def dfs(self, max_depth=None):
+    def setHasHiddenChild(self):
+
+        if len(self.children) == 0:
+            if self.filename[0] == '.':
+                self.has_hidden = True
+            else:
+                self.has_hidden = False
+        else:
+            self.has_hidden = False
+            for child in self.children:
+                child.setHasHiddenChild()
+                self.has_hidden = self.has_hidden or child.has_hidden
+
+    def pruneRegularFile(self):
+        new_children = []
+        for child in self.children:
+            child.pruneRegularFile()
+            if child.has_hidden:
+                new_children.append(child)
+        self.children = new_children
+
+    def setLastAgain(self):
+        if len(self.children) > 0:
+            for i in range(len(self.children)):
+                self.children[i].is_lastoflist = False
+                if i == len(self.children)-1:
+                    self.children[i].is_lastoflist = True
+                self.children[i].parents_islast = self.parents_islast.copy()
+                self.children[i].parents_islast.append(self.is_lastoflist)
+                self.children[i].setLastAgain()
+
+    def printTree(self, max_depth=None):
         depth = len(self.parents_islast)
         if max_depth is not None and depth > max_depth:
             return
@@ -59,18 +94,17 @@ class TreeNode():
         if os.path.isdir(self.val):
             self.es.setCharN(211)
             self.es.setCharBold()
-        s = self.val.split('/')[-1]
         if os.getcwd() == self.val:
-            s = s + ' (./)'
-        print(s)
+            self.filename = self.filename + ' (./)'
+        print(self.filename)
         if os.path.isdir(self.val):
             es.resetChar()
         for child in self.children:
-            child.dfs(max_depth=max_depth)
+            child.printTree(max_depth=max_depth)
 
 
 def parse(argv=sys.argv):
-    usage = 'mytree [ROOT DIRECTORY] [-a --show-hidden] [-d --depth]'
+    usage = 'mytree [ROOT_DIRECTORY] [-a --show-hidden] [-d --depth DEPTH] [--only-hidden] [--find-hidden]'
     parser = argparse.ArgumentParser(usage=usage)
     parser.add_argument(
         'root',
@@ -81,6 +115,14 @@ def parse(argv=sys.argv):
         '--show-hidden',
         action='store_true',
         help='also show hidden files')
+    parser.add_argument(
+        '--only-hidden',
+        action='store_true',
+        help='show only hidden paths')
+    parser.add_argument(
+        '--find-hidden',
+        action='store_true',
+        help='find hidden files')
     parser.add_argument(
         '-v',
         '--version',
@@ -109,8 +151,21 @@ def main():
         else:
             args.root = os.getcwd() + '/' + args.root
     root = TreeNode(val=args.root, es=display.EscapeSequence())
+
+    ignore_hidden = True
+    ignore_regular = False
     if args.show_hidden:
-        root.buildTree(ignore_hidden=False)
-    else:
-        root.buildTree(ignore_hidden=True)
-    root.dfs(max_depth=args.depth)
+        ignore_hidden = False
+    if args.only_hidden:
+        ignore_hidden = False
+        ignore_regular = True
+    if args.find_hidden:
+        ignore_hidden = False
+
+    root.buildTree(ignore_hidden=ignore_hidden, ignore_regular=ignore_regular)
+    # The process for --find-hidden seems not efficient
+    if args.find_hidden:
+        root.setHasHiddenChild()
+        root.pruneRegularFile()
+        root.setLastAgain()
+    root.printTree(max_depth=args.depth)
