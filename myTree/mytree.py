@@ -3,7 +3,7 @@ import os
 import sys
 
 import myTree
-from myTree import display
+from myTree import display, directory_color
 
 
 SPACE = 4
@@ -110,7 +110,7 @@ class TreeNode():
         print(prefix, end='')
         es = display.EscapeSequence()
         if os.path.isdir(self.val):
-            self.es.setCharN(211)
+            self.es.setCharN(directory_color)
             self.es.setCharBold()
         if os.getcwd() == self.val:
             self.filename = self.filename + ' (./)'
@@ -126,7 +126,7 @@ class TreeNode():
         prefix = self.depth * 2 * ' ' + '|-'
         print(prefix, end='')
         if os.path.isdir(self.val):
-            self.es.setCharN(211)
+            self.es.setCharN(directory_color)
             self.es.setCharBold()
         if os.getcwd() == self.val:
             self.filename = self.filename + ' (./)'
