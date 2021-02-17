@@ -3,10 +3,14 @@ import os
 import sys
 
 import myTree
-from myTree import display, directory_color
+from myTree import display, directory_color, color_suffixes
 
 
 SPACE = 4
+
+
+def suffix(filename):
+    return filename.split('.')[-1]
 
 
 class TreeNode():
@@ -53,7 +57,6 @@ class TreeNode():
         listdir = [self.val + '/' + x for x in listdir]
 
         for child in listdir:
-            print(child)
             node = TreeNode(val=child)
             node.depth = self.depth+1
             node.es = self.es
@@ -109,13 +112,20 @@ class TreeNode():
                 prefix = prefix + '├' + '─'*(SPACE-2) + ' '
         print(prefix, end='')
         es = display.EscapeSequence()
+        change_flag = False
         if os.path.isdir(self.val):
             self.es.setCharN(directory_color)
             self.es.setCharBold()
+            change_flag = True
+        for color_suffix in color_suffixes:
+            if suffix(self.filename) == color_suffix[0]:
+                self.es.setCharN(color_suffix[1])
+                change_flag = True
+                break
         if os.getcwd() == self.val:
             self.filename = self.filename + ' (./)'
         print(self.filename)
-        if os.path.isdir(self.val):
+        if change_flag:
             es.resetChange()
         for child in self.children:
             child.printTree(max_depth=max_depth)
@@ -125,13 +135,20 @@ class TreeNode():
             return
         prefix = self.depth * 2 * ' ' + '|-'
         print(prefix, end='')
+        change_flag = False
         if os.path.isdir(self.val):
             self.es.setCharN(directory_color)
             self.es.setCharBold()
+            change_flag = True
+        for color_suffix in color_suffixes:
+            if suffix(self.filename) == color_suffix[0]:
+                self.es.setCharN(color_suffix[1])
+                change_flag = True
+                break
         if os.getcwd() == self.val:
             self.filename = self.filename + ' (./)'
         print(self.filename)
-        if os.path.isdir(self.val):
+        if change_flag:
             self.es.resetChange()
         for child in self.children:
             child.printTreeSimple(max_depth=max_depth)
