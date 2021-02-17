@@ -3,10 +3,14 @@ import os
 import sys
 
 import myTree
-from myTree import display
+from myTree import display, directory_color, color_suffixes
 
 
 SPACE = 4
+
+
+def suffix(filename):
+    return filename.split('.')[-1]
 
 
 class TreeNode():
@@ -19,6 +23,7 @@ class TreeNode():
         self.parents_islast = []
         self.es = es
         self.has_hidden = None
+        self.depth = 0
 
     def buildTree(self, ignore_hidden=True, ignore_regular=False):
         listdir = os.listdir(self.val)
@@ -35,11 +40,28 @@ class TreeNode():
                 node.is_lastoflist = True
             node.parents_islast = self.parents_islast.copy()
             node.parents_islast.append(self.is_lastoflist)
+            node.depth = self.depth+1
             node.es = self.es
 
             if os.path.isdir(node.val):
                 node.buildTree(ignore_hidden=ignore_hidden, ignore_regular=ignore_regular)
 
+            self.children.append(node)
+
+    def buildTreeSimple(self, ignore_hidden=True, ignore_regular=False):
+        listdir = os.listdir(self.val)
+        if ignore_hidden:
+            listdir = [x for x in listdir if x[0] != '.']
+        if ignore_regular:
+            listdir = [x for x in listdir if x[0] == '.']
+        listdir = [self.val + '/' + x for x in listdir]
+
+        for child in listdir:
+            node = TreeNode(val=child)
+            node.depth = self.depth+1
+            node.es = self.es
+            if os.path.isdir(node.val):
+                node.buildTreeSimple(ignore_hidden=ignore_hidden, ignore_regular=ignore_regular)
             self.children.append(node)
 
     def setHasHiddenChild(self):
@@ -74,8 +96,7 @@ class TreeNode():
                 self.children[i].setLastAgain()
 
     def printTree(self, max_depth=None):
-        depth = len(self.parents_islast)
-        if max_depth is not None and depth > max_depth:
+        if max_depth is not None and self.depth > max_depth:
             return
         list_lasts = self.parents_islast[1:]
         prefix = ''
@@ -84,27 +105,57 @@ class TreeNode():
                 prefix = prefix + ' '*(SPACE)
             else:
                 prefix = prefix + '│' + ' '*(SPACE-1)
-        if depth > 0:
+        if self.depth > 0:
             if self.is_lastoflist:
                 prefix = prefix + '└' + '─'*(SPACE-2) + ' '
             else:
                 prefix = prefix + '├' + '─'*(SPACE-2) + ' '
         print(prefix, end='')
         es = display.EscapeSequence()
+        change_flag = False
         if os.path.isdir(self.val):
-            self.es.setCharN(211)
+            self.es.setCharN(directory_color)
             self.es.setCharBold()
+            change_flag = True
+        for color_suffix in color_suffixes:
+            if suffix(self.filename) == color_suffix[0]:
+                self.es.setCharN(color_suffix[1])
+                change_flag = True
+                break
         if os.getcwd() == self.val:
             self.filename = self.filename + ' (./)'
         print(self.filename)
-        if os.path.isdir(self.val):
-            es.resetChar()
+        if change_flag:
+            es.resetChange()
         for child in self.children:
             child.printTree(max_depth=max_depth)
 
+    def printTreeSimple(self, max_depth=None):
+        if max_depth is not None and self.depth > max_depth:
+            return
+        prefix = self.depth * 2 * ' ' + '|-'
+        print(prefix, end='')
+        change_flag = False
+        if os.path.isdir(self.val):
+            self.es.setCharN(directory_color)
+            self.es.setCharBold()
+            change_flag = True
+        for color_suffix in color_suffixes:
+            if suffix(self.filename) == color_suffix[0]:
+                self.es.setCharN(color_suffix[1])
+                change_flag = True
+                break
+        if os.getcwd() == self.val:
+            self.filename = self.filename + ' (./)'
+        print(self.filename)
+        if change_flag:
+            self.es.resetChange()
+        for child in self.children:
+            child.printTreeSimple(max_depth=max_depth)
+
 
 def parse(argv=sys.argv):
-    usage = 'mytree [ROOT_DIRECTORY] [-a --show-hidden] [-d --depth DEPTH] [--only-hidden] [--find-hidden]'
+    usage = 'mytree [ROOT_DIRECTORY] [-a --show-hidden] [-d --depth DEPTH] [--only-hidden] [--find-hidden] [--simple]'
     parser = argparse.ArgumentParser(usage=usage)
     parser.add_argument(
         'root',
@@ -134,6 +185,11 @@ def parse(argv=sys.argv):
         '--depth',
         type=int,
         help='set the maximum depth to show in graph')
+    parser.add_argument(
+        '-s',
+        '--simple',
+        action='store_true',
+        help='show a simple tree')
 
     args = parser.parse_args(argv[1:])
     return args
@@ -162,10 +218,16 @@ def main():
     if args.find_hidden:
         ignore_hidden = False
 
-    root.buildTree(ignore_hidden=ignore_hidden, ignore_regular=ignore_regular)
+    if args.simple:
+        root.buildTreeSimple(ignore_hidden=ignore_hidden, ignore_regular=ignore_regular)
+    else:
+        root.buildTree(ignore_hidden=ignore_hidden, ignore_regular=ignore_regular)
     # The process for --find-hidden seems not efficient
     if args.find_hidden:
         root.setHasHiddenChild()
         root.pruneRegularFile()
         root.setLastAgain()
-    root.printTree(max_depth=args.depth)
+    if args.simple:
+        root.printTreeSimple(max_depth=args.depth)
+    else:
+        root.printTree(max_depth=args.depth)

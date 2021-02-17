@@ -81,10 +81,15 @@ class EscapeSequence:
 
     def showAllColor(self):
         for i in range(256):
-            print('\033[38;5;', i, 'm', sep='', end='')
-            print(i, '\thoge ', end='')
-            print('\033[39m', end='')
             print('\033[48;5;', i, 'm', sep='', end='')
             print(' '*4, end='')
-            print('\033[49m', end='')
+            print('\033[49m', end=' ')
+            print('\033[38;5;', i, 'm', sep='', end='')
+            print('hoge', i, end=' ')
+            print('\033[39m', end='')
             print()
+
+
+if __name__ == '__main__':
+    es = EscapeSequence()
+    es.showAllColor()
