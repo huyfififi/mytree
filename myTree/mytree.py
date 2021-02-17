@@ -137,6 +137,21 @@ class TreeNode():
             child.printTreeSimple(max_depth=max_depth)
 
 
+def set_directory_color(color_number):
+    if not 0 <= color_number < 256:
+        print('Please type the number between 0 and 256.')
+        return
+    content = ''
+    with open('myTree/__init__.py', 'r') as f:
+        content = f.read()
+        content = content.split('\n')
+        for line in content:
+            if line[:15] == 'directory_color':
+                line = 'directory_color = ' + str(color_number) + '\n'
+    with open('myTree/__init__.py', 'w') as f:
+        f.write(content)
+
+
 def parse(argv=sys.argv):
     usage = 'mytree [ROOT_DIRECTORY] [-a --show-hidden] [-d --depth DEPTH] [--only-hidden] [--find-hidden] [--simple]'
     parser = argparse.ArgumentParser(usage=usage)
@@ -173,6 +188,11 @@ def parse(argv=sys.argv):
         '--simple',
         action='store_true',
         help='show a simple tree')
+    parser.add_argument(
+        '--set-directory-color',
+        nargs='?',
+        type=int,
+        help="set the color of directories' names(0~256)")
 
     args = parser.parse_args(argv[1:])
     return args
@@ -180,6 +200,11 @@ def parse(argv=sys.argv):
 
 def main():
     args = parse()
+
+    if args.set_directory_color is not None:
+        set_directory_color(args.set_directory_color)
+        return 0
+
     if args.root is None:
         args.root = os.getcwd()
     else:
