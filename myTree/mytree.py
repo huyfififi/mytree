@@ -116,7 +116,7 @@ class TreeNode():
             self.filename = self.filename + ' (./)'
         print(self.filename)
         if os.path.isdir(self.val):
-            es.resetChar()
+            es.resetChange()
         for child in self.children:
             child.printTree(max_depth=max_depth)
 
@@ -132,7 +132,7 @@ class TreeNode():
             self.filename = self.filename + ' (./)'
         print(self.filename)
         if os.path.isdir(self.val):
-            self.es.resetChar()
+            self.es.resetChange()
         for child in self.children:
             child.printTreeSimple(max_depth=max_depth)
 
