@@ -3,7 +3,7 @@
 ### Installation
 
 ```
-$ pip install git+https://github.com/hn-void/myTree.git@main
+$ pip3 install git+https://github.com/hn-void/myTree.git@main
 ```
 
 ### Usage example
