@@ -7,13 +7,15 @@ class TestArgparse(unittest.TestCase):
 
     def setUp(self):
         self.test_cases = [
-            # argv, [root directory, show_hidden, depth]
-            [['mytree'], [None, False, None]],
-            [['mytree', '.'], ['.', False, None]],
-            [['mytree', '-a'], [None, True, None]],
-            [['mytree', 'foo/bar', '--show-hidden'], ['foo/bar', True, None]],
-            [['mytree', '--depth', '1'], [None, False, 1]],
-            [['mytree', 'bar/foo', '-d', '-1', '--show-hidden'], ['bar/foo', True, -1]]
+            # argv, [root directory, show_hidden, depth, simple]
+            [['mytree'], [None, False, None, False]],
+            [['mytree', '.'], ['.', False, None, False]],
+            [['mytree', '-a'], [None, True, None, False]],
+            [['mytree', 'foo/bar', '--show-hidden'], ['foo/bar', True, None, False]],
+            [['mytree', '--depth', '1'], [None, False, 1, False]],
+            [['mytree', 'bar/foo', '-d', '-1', '--show-hidden'], ['bar/foo', True, -1, False]],
+            [['mytree', '--simple'], [None, False, None, True]],
+            [['mytree', '-s', '--show-hidden'], [None, True, None, True]]
         ]
 
     def testArgparse(self):
@@ -23,3 +25,4 @@ class TestArgparse(unittest.TestCase):
             self.assertEqual(args.root, expected[0])
             self.assertEqual(args.show_hidden, expected[1])
             self.assertEqual(args.depth, expected[2])
+            self.assertEqual(args.simple, expected[3])
