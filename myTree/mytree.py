@@ -114,19 +114,19 @@ class TreeNode():
         es = display.EscapeSequence()
         change_flag = False
         if os.path.isdir(self.val):
-            self.es.setCharN(directory_color)
-            self.es.setCharBold()
+            self.es.set_char_with_n(directory_color)
+            self.es.set_char_bold()
             change_flag = True
         for color_suffix in color_suffixes:
             if suffix(self.filename) == color_suffix[0]:
-                self.es.setCharN(color_suffix[1])
+                self.es.set_char_with_n(color_suffix[1])
                 change_flag = True
                 break
         if os.getcwd() == self.val:
             self.filename = self.filename + ' (./)'
         print(self.filename)
         if change_flag:
-            es.resetChange()
+            es.reset_change()
         for child in self.children:
             child.printTree(max_depth=max_depth)
 
@@ -137,19 +137,19 @@ class TreeNode():
         print(prefix, end='')
         change_flag = False
         if os.path.isdir(self.val):
-            self.es.setCharN(directory_color)
-            self.es.setCharBold()
+            self.es.set_char_with_n(directory_color)
+            self.es.set_char_bold()
             change_flag = True
         for color_suffix in color_suffixes:
             if suffix(self.filename) == color_suffix[0]:
-                self.es.setCharN(color_suffix[1])
+                self.es.set_char_with_n(color_suffix[1])
                 change_flag = True
                 break
         if os.getcwd() == self.val:
             self.filename = self.filename + ' (./)'
         print(self.filename)
         if change_flag:
-            self.es.resetChange()
+            self.es.reset_change()
         for child in self.children:
             child.printTreeSimple(max_depth=max_depth)
 
