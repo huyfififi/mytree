@@ -121,7 +121,8 @@ class DisplayFormatChanger:
             print(' '*4, end='')
             print('\033[49m', end=' ')
             print('\033[38;5;', i, 'm', sep='', end='')
-            print('hoge', i, end=' ')
+            print('The quick brown fox jumps over the lazy dog',
+                  '['+str(i)+']', end=' ')
             print('\033[39m', end='')
             print()
 
