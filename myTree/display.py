@@ -1,4 +1,4 @@
-class EscapeSequence:
+class DisplayFormatChanger:
 
     def __init__(self):
         self.__charfont_changed = False
@@ -127,4 +127,4 @@ class EscapeSequence:
 
 
 if __name__ == '__main__':
-    EscapeSequence.show_all_color()
+    DisplayFormatChanger.show_all_color()

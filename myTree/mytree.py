@@ -15,15 +15,15 @@ def suffix(filename):
 
 class TreeNode():
 
-    def __init__(self, val=None, es=None):
+    def __init__(self, val=None, depth=0, dfc=None):
         self.val = val
         self.filename = self.val.split('/')[-1] if self.val else None
         self.children = []
         self.is_lastoflist = False
         self.parents_islast = []
-        self.es = es
         self.has_hidden = None
-        self.depth = 0
+        self.depth = depth
+        self.dfc = dfc
 
     def buildTree(self, ignore_hidden=True, ignore_regular=False):
         listdir = os.listdir(self.val)
@@ -35,13 +35,11 @@ class TreeNode():
 
         for i in range(len(listdir)):
             child = listdir[i]
-            node = TreeNode(val=child)
+            node = TreeNode(val=child, dfc=self.dfc, depth=self.depth+1)
             if i == len(listdir)-1:
                 node.is_lastoflist = True
             node.parents_islast = self.parents_islast.copy()
             node.parents_islast.append(self.is_lastoflist)
-            node.depth = self.depth+1
-            node.es = self.es
 
             if os.path.isdir(node.val):
                 node.buildTree(ignore_hidden=ignore_hidden, ignore_regular=ignore_regular)
@@ -57,9 +55,7 @@ class TreeNode():
         listdir = [self.val + '/' + x for x in listdir]
 
         for child in listdir:
-            node = TreeNode(val=child)
-            node.depth = self.depth+1
-            node.es = self.es
+            node = TreeNode(val=child, depth=self.depth+1, dfc=self.dfc)
             if os.path.isdir(node.val):
                 node.buildTreeSimple(ignore_hidden=ignore_hidden, ignore_regular=ignore_regular)
             self.children.append(node)
@@ -111,22 +107,22 @@ class TreeNode():
             else:
                 prefix = prefix + '├' + '─'*(SPACE-2) + ' '
         print(prefix, end='')
-        es = display.EscapeSequence()
+        dfc = display.DisplayFormatChanger()
         change_flag = False
         if os.path.isdir(self.val):
-            self.es.set_char_with_n(directory_color)
-            self.es.set_char_bold()
+            self.dfc.set_char_with_n(directory_color)
+            self.dfc.set_char_bold()
             change_flag = True
         for color_suffix in color_suffixes:
             if suffix(self.filename) == color_suffix[0]:
-                self.es.set_char_with_n(color_suffix[1])
+                self.dfc.set_char_with_n(color_suffix[1])
                 change_flag = True
                 break
         if os.getcwd() == self.val:
             self.filename = self.filename + ' (./)'
         print(self.filename)
         if change_flag:
-            es.reset_change()
+            dfc.reset_change()
         for child in self.children:
             child.printTree(max_depth=max_depth)
 
@@ -137,19 +133,19 @@ class TreeNode():
         print(prefix, end='')
         change_flag = False
         if os.path.isdir(self.val):
-            self.es.set_char_with_n(directory_color)
-            self.es.set_char_bold()
+            self.dfc.set_char_with_n(directory_color)
+            self.dfc.set_char_bold()
             change_flag = True
         for color_suffix in color_suffixes:
             if suffix(self.filename) == color_suffix[0]:
-                self.es.set_char_with_n(color_suffix[1])
+                self.dfc.set_char_with_n(color_suffix[1])
                 change_flag = True
                 break
         if os.getcwd() == self.val:
             self.filename = self.filename + ' (./)'
         print(self.filename)
         if change_flag:
-            self.es.reset_change()
+            self.dfc.reset_change()
         for child in self.children:
             child.printTreeSimple(max_depth=max_depth)
 
@@ -206,7 +202,7 @@ def main():
         # Relative path
         else:
             args.root = os.getcwd() + '/' + args.root
-    root = TreeNode(val=args.root, es=display.EscapeSequence())
+    root = TreeNode(val=args.root, dfc=display.DisplayFormatChanger())
 
     ignore_hidden = True
     ignore_regular = False
