@@ -169,6 +169,12 @@ def parse(argv=sys.argv):
         nargs='?',
         help='root directory')
     parser.add_argument(
+        '-v',
+        '--version',
+        action='version',
+        version=myTree.__version__,
+        help='print product version and exit')
+    parser.add_argument(
         '-a',
         '--show-hidden',
         action='store_true',
@@ -181,12 +187,6 @@ def parse(argv=sys.argv):
         '--find-hidden',
         action='store_true',
         help='find hidden files')
-    parser.add_argument(
-        '-v',
-        '--version',
-        action='version',
-        version=myTree.__version__,
-        help='print product version and exit')
     parser.add_argument(
         '-d',
         '--depth',
