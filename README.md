@@ -6,6 +6,24 @@
 $ pip3 install --upgrade git+https://github.com/huyvnguyen/myTree.git@main
 ```
 
+### Configure Colors by Yourself
+```
+$ git clone https://github.com/huyvnguyen/myTree.git
+$ cd myTree
+$ cat myTree/__init__.py
+__version__ = '0.1.1'
+
+# 1~256
+# You can check the colors by 'python3 display.py'
+directory_color = 4
+color_suffixes = [('py', 14)]
+
+$ pip3 install --upgrade .
+$ mytree tests/test_files
+```
+![configure_color.png](/docs/configure_color.png)
+
+
 ### Usage example
 
 ```
