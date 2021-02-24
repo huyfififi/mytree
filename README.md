@@ -6,7 +6,7 @@
 $ pip3 install --upgrade git+https://github.com/huyvnguyen/myTree.git@main
 ```
 
-### Configure Colors by Yourself
+### How to Configure Colors by Yourself
 ```
 $ git clone https://github.com/huyvnguyen/myTree.git
 $ cd myTree
