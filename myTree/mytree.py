@@ -169,9 +169,9 @@ class TreeNode():
 
 
 def parse(argv=sys.argv):
-    usage = 'mytree [ROOT_DIRECTORY] [-a --show-hidden] [-d --depth DEPTH]\
-    [--only-hidden] [--find-hidden] [--simple]\
-    [--ignore [LIST_OF_IGNORE_FILES]]'
+    usage = 'mytree [ROOT_DIRECTORY] [-a --show-hidden] [-d --depth DEPTH] '\
+            '[--only-hidden] [--find-hidden] [--simple] '\
+            '[--ignore [LIST_OF_IGNORE_FILES]]'
     parser = argparse.ArgumentParser(usage=usage)
     parser.add_argument(
         'root',
