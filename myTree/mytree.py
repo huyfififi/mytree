@@ -27,19 +27,23 @@ class TreeNode():
 
     @staticmethod
     def filter_files(listdir, ignore_hidden=True,
-                     ignore_regular=False, ignore_files=[]):
+                     ignore_regular=False, ignore_files=None):
         if ignore_hidden:
             listdir = [x for x in listdir if x[0] != '.']
         if ignore_regular:
             listdir = [x for x in listdir if x[0] == '.']
-        listdir = [x for x in listdir if x not in ignore_files]
+        if ignore_files is not None:
+            listdir = [x for x in listdir if x not in ignore_files]
         return listdir
 
-    def build_tree(self, ignore_hidden=True, ignore_regular=False):
+    def build_tree(self,
+                   ignore_hidden=True, ignore_regular=False,
+                   ignore_files=None):
         listdir = os.listdir(self.val)
         listdir = TreeNode.filter_files(listdir,
                                         ignore_hidden=ignore_hidden,
-                                        ignore_regular=False)
+                                        ignore_regular=ignore_regular,
+                                        ignore_files=ignore_files)
         listdir = [self.val + '/' + x for x in listdir]
 
         for i in range(len(listdir)):
@@ -121,8 +125,9 @@ class TreeNode():
             child.print_tree(max_depth=max_depth)
 
     @staticmethod
-    def print_tree_simple(filepath, depth, dfc, ignore_hidden=True,
-                          ignore_regular=False, max_depth=None):
+    def print_tree_simple(filepath, depth, dfc, max_depth=None,
+                          ignore_hidden=True, ignore_regular=False,
+                          ignore_files=None):
         if max_depth is not None and depth > max_depth:
             return
 
@@ -149,7 +154,8 @@ class TreeNode():
         listdir = os.listdir(filepath)
         listdir = TreeNode.filter_files(listdir,
                                         ignore_hidden=ignore_hidden,
-                                        ignore_regular=ignore_regular)
+                                        ignore_regular=ignore_regular,
+                                        ignore_files=ignore_files)
         listdir = [filepath + '/' + x for x in listdir]
 
         for childpath in listdir:
@@ -162,7 +168,8 @@ class TreeNode():
 
 def parse(argv=sys.argv):
     usage = 'mytree [ROOT_DIRECTORY] [-a --show-hidden] [-d --depth DEPTH]\
-    [--only-hidden] [--find-hidden] [--simple]'
+    [--only-hidden] [--find-hidden] [--simple]\
+    [--ignore [LIST_OF_IGNORE_FILES]]'
     parser = argparse.ArgumentParser(usage=usage)
     parser.add_argument(
         'root',
@@ -197,6 +204,10 @@ def parse(argv=sys.argv):
         '--simple',
         action='store_true',
         help='show a simple tree')
+    parser.add_argument(
+        '--ignore',
+        nargs='*',
+        help='set specific ignore files')
 
     args = parser.parse_args(argv[1:])
     return args
@@ -228,15 +239,18 @@ def main():
         TreeNode.print_tree_simple(args.root, depth=0,
                                    dfc=display.DisplayFormatChanger(),
                                    ignore_hidden=ignore_hidden,
-                                   ignore_regular=ignore_regular)
+                                   ignore_regular=ignore_regular,
+                                   ignore_files=args.ignore)
         return
 
     root = TreeNode(val=args.root, dfc=display.DisplayFormatChanger())
     root.build_tree(ignore_hidden=ignore_hidden,
-                    ignore_regular=ignore_regular)
+                    ignore_regular=ignore_regular,
+                    ignore_files=args.ignore)
     # The process for --find-hidden seems not efficient
     if args.find_hidden:
         root.set_has_hidden_child()
         root.prune_regular_file()
         root.set_last_again()
+
     root.print_tree(max_depth=args.depth)
