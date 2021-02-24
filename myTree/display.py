@@ -67,6 +67,7 @@ class DisplayFormatChanger:
 
     def set_char_white(self):
         print('\033[37m', end='')
+        self.__charcolor_changed = True
 
     def set_char_with_n(self, n: int):
         string = '\033[38;5;' + str(n) + 'm'
