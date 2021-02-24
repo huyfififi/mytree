@@ -56,7 +56,8 @@ class TreeNode():
 
             if os.path.isdir(node.val):
                 node.build_tree(ignore_hidden=ignore_hidden,
-                                ignore_regular=ignore_regular)
+                                ignore_regular=ignore_regular,
+                                ignore_files=ignore_files)
 
             self.children.append(node)
 
@@ -162,7 +163,8 @@ class TreeNode():
             if os.path.isdir(childpath):
                 TreeNode.print_tree_simple(childpath, depth+1, dfc=dfc,
                                            ignore_hidden=ignore_hidden,
-                                           ignore_regular=ignore_regular)
+                                           ignore_regular=ignore_regular,
+                                           ignore_files=ignore_files)
             _print_filename(filepath=childpath, depth=depth+1)
 
 
