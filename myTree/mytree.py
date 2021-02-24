@@ -25,12 +25,21 @@ class TreeNode():
         self.depth = depth
         self.dfc = dfc
 
-    def build_tree(self, ignore_hidden=True, ignore_regular=False):
-        listdir = os.listdir(self.val)
+    @staticmethod
+    def filter_files(listdir, ignore_hidden=True,
+                     ignore_regular=False, ignore_files=[]):
         if ignore_hidden:
             listdir = [x for x in listdir if x[0] != '.']
         if ignore_regular:
             listdir = [x for x in listdir if x[0] == '.']
+        listdir = [x for x in listdir if x not in ignore_files]
+        return listdir
+
+    def build_tree(self, ignore_hidden=True, ignore_regular=False):
+        listdir = os.listdir(self.val)
+        listdir = TreeNode.filter_files(listdir,
+                                        ignore_hidden=ignore_hidden,
+                                        ignore_regular=False)
         listdir = [self.val + '/' + x for x in listdir]
 
         for i in range(len(listdir)):
@@ -76,11 +85,12 @@ class TreeNode():
                     self.children[i].is_lastoflist = True
                 self.children[i].parents_islast = self.parents_islast.copy()
                 self.children[i].parents_islast.append(self.is_lastoflist)
-                self.children[i].setLastAgain()
+                self.children[i].set_last_again()
 
     def print_tree(self, max_depth=None):
         if max_depth is not None and self.depth > max_depth:
             return
+
         list_lasts = self.parents_islast[1:]
         prefix = ''
         for is_last in list_lasts:
@@ -94,6 +104,7 @@ class TreeNode():
             else:
                 prefix = prefix + '├' + '─'*(SPACE-2) + ' '
         print(prefix, end='')
+
         if os.path.isdir(self.val):
             self.dfc.set_char_with_n(directory_color)
             self.dfc.set_char_bold()
@@ -136,10 +147,9 @@ class TreeNode():
         _print_filename(filepath=filepath, depth=depth)
 
         listdir = os.listdir(filepath)
-        if ignore_hidden:
-            listdir = [x for x in listdir if x[0] != '.']
-        if ignore_regular:
-            listdir = [x for x in listdir if x[0] == '.']
+        listdir = TreeNode.filter_files(listdir,
+                                        ignore_hidden=ignore_hidden,
+                                        ignore_regular=ignore_regular)
         listdir = [filepath + '/' + x for x in listdir]
 
         for childpath in listdir:
