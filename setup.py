@@ -7,7 +7,7 @@ distutils.core.setup(
     name='myTree',
     version=myTree.__version__,
     description='Display Directory Tree',
-    author='Kazuki Nguyen',
+    # author='Huy Nguyen',
     url='https://github.com/hn-void/myTree',
     packages=setuptools.find_packages(),
     python_requires='>=3.7',
