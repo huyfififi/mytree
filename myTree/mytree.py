@@ -161,11 +161,12 @@ class TreeNode():
 
         for childpath in listdir:
             if os.path.isdir(childpath):
-                TreeNode.print_tree_simple(childpath, depth+1, dfc=dfc,
+                TreeNode.print_tree_simple(childpath, depth=depth+1, dfc=dfc,
                                            ignore_hidden=ignore_hidden,
                                            ignore_regular=ignore_regular,
                                            ignore_files=ignore_files)
-            _print_filename(filepath=childpath, depth=depth+1)
+            else:
+                _print_filename(filepath=childpath, depth=depth+1)
 
 
 def parse(argv=sys.argv):
