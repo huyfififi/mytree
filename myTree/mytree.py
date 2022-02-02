@@ -64,9 +64,7 @@ class TreeNode():
                 child.set_has_hidden_child()
                 self.has_hidden = self.has_hidden or child.has_hidden
 
-    def print_tree(self, max_depth=None):
-        if max_depth is not None and self.depth > max_depth:
-            return
+    def print_tree(self):
 
         list_lasts = self.parents_islast[1:]
         prefix = ''
@@ -93,13 +91,11 @@ class TreeNode():
         if self.dfc.is_changed:
             self.dfc.reset_change()
         for child in self.children:
-            child.print_tree(max_depth=max_depth)
+            child.print_tree()
 
     @staticmethod
-    def print_tree_simple(filepath, depth, dfc, max_depth=None,
+    def print_tree_simple(filepath, depth, dfc,
                           ignore_hidden=True):
-        if max_depth is not None and depth > max_depth:
-            return
 
         def _print_filename(filepath, depth, dfc=dfc):
             prefix = ' ' * 2 * depth + '|-'
@@ -135,9 +131,8 @@ class TreeNode():
 
 
 def parse(argv=sys.argv):
-    usage = 'mytree [ROOT_DIRECTORY] [-a --show-hidden] [-d --depth DEPTH] '\
-            '[--only-hidden] [--find-hidden] [--simple] '\
-            '[--ignore [LIST_OF_IGNORE_FILES]]'
+    usage = 'mytree [ROOT_DIRECTORY] [-a --show-hidden] '\
+            '[--simple]'
     parser = argparse.ArgumentParser(usage=usage)
     parser.add_argument(
         'root',
@@ -154,11 +149,6 @@ def parse(argv=sys.argv):
         '--show-hidden',
         action='store_true',
         help='also show hidden files')
-    parser.add_argument(
-        '-d',
-        '--depth',
-        type=int,
-        help='set the maximum depth to show in graph')
     parser.add_argument(
         '-s',
         '--simple',
@@ -194,4 +184,4 @@ def main():
     root = TreeNode(val=args.root, dfc=display.DisplayFormatChanger())
     root.build_tree(ignore_hidden=ignore_hidden)
 
-    root.print_tree(max_depth=args.depth)
+    root.print_tree()
