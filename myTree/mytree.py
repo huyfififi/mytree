@@ -3,10 +3,14 @@ import os
 import sys
 
 import myTree
-from myTree import display, directory_color, color_suffixes
+from myTree import display
 
-
-SPACE = 4
+from .constants import (
+    COLOR_SUFFIXES,
+    DIRECTORY_COLOR,
+    IGNORE_FILES,
+    SPACE,
+)
 
 
 def suffix(filename):
@@ -40,6 +44,7 @@ class TreeNode():
                    ignore_hidden=True, ignore_regular=False,
                    ignore_files=None):
         listdir = os.listdir(self.val)
+        listdir = [filename for filename in listdir if filename not in IGNORE_FILES]
         listdir = TreeNode.filter_files(listdir,
                                         ignore_hidden=ignore_hidden,
                                         ignore_regular=ignore_regular,
@@ -111,12 +116,10 @@ class TreeNode():
         print(prefix, end='')
 
         if os.path.isdir(self.val):
-            self.dfc.set_char_with_n(directory_color)
+            self.dfc.set_char_with_n(DIRECTORY_COLOR)
             self.dfc.set_char_bold()
-        for color_suffix in color_suffixes:
-            if suffix(self.filename) == color_suffix[0]:
-                self.dfc.set_char_with_n(color_suffix[1])
-                break
+        if suffix_color_code := COLOR_SUFFIXES.get(suffix(self.filename)):
+            self.dfc.set_char_with_n(suffix_color_code)
         if os.getcwd() == self.val:
             self.filename = self.filename + ' (./)'
         print(self.filename)
