@@ -29,40 +29,25 @@ class TreeNode():
         self.depth = depth
         self.dfc = dfc
 
-    @staticmethod
-    def filter_files(listdir, ignore_hidden=True,
-                     ignore_regular=False, ignore_files=None):
-        if ignore_hidden:
-            listdir = [x for x in listdir if x[0] != '.']
-        if ignore_regular:
-            listdir = [x for x in listdir if x[0] == '.']
-        if ignore_files is not None:
-            listdir = [x for x in listdir if x not in ignore_files]
-        return listdir
-
     def build_tree(self,
-                   ignore_hidden=True, ignore_regular=False,
-                   ignore_files=None):
+                   ignore_hidden=True, ignore_regular=False):
         listdir = os.listdir(self.val)
         listdir = [filename for filename in listdir if filename not in IGNORE_FILES]
-        listdir = TreeNode.filter_files(listdir,
-                                        ignore_hidden=ignore_hidden,
-                                        ignore_regular=ignore_regular,
-                                        ignore_files=ignore_files)
+        if ignore_hidden:
+            listdir = [filename for filename in listdir if not filename.startswith(".")]
         listdir = [self.val + '/' + x for x in listdir]
 
         for i in range(len(listdir)):
             child = listdir[i]
-            node = TreeNode(val=child, dfc=self.dfc, depth=self.depth+1)
-            if i == len(listdir)-1:
+            node = TreeNode(val=child, dfc=self.dfc, depth=self.depth + 1)
+            if i == len(listdir) - 1:
                 node.is_lastoflist = True
             node.parents_islast = self.parents_islast.copy()
             node.parents_islast.append(self.is_lastoflist)
 
             if os.path.isdir(node.val):
                 node.build_tree(ignore_hidden=ignore_hidden,
-                                ignore_regular=ignore_regular,
-                                ignore_files=ignore_files)
+                                ignore_regular=ignore_regular)
 
             self.children.append(node)
 
@@ -79,24 +64,6 @@ class TreeNode():
                 child.set_has_hidden_child()
                 self.has_hidden = self.has_hidden or child.has_hidden
 
-    def prune_regular_file(self):
-        new_children = []
-        for child in self.children:
-            child.prune_regular_file()
-            if child.has_hidden:
-                new_children.append(child)
-        self.children = new_children
-
-    def set_last_again(self):
-        if len(self.children) > 0:
-            for i in range(len(self.children)):
-                self.children[i].is_lastoflist = False
-                if i == len(self.children)-1:
-                    self.children[i].is_lastoflist = True
-                self.children[i].parents_islast = self.parents_islast.copy()
-                self.children[i].parents_islast.append(self.is_lastoflist)
-                self.children[i].set_last_again()
-
     def print_tree(self, max_depth=None):
         if max_depth is not None and self.depth > max_depth:
             return
@@ -105,14 +72,14 @@ class TreeNode():
         prefix = ''
         for is_last in list_lasts:
             if is_last:
-                prefix = prefix + ' '*(SPACE)
+                prefix = prefix + ' ' * (SPACE)
             else:
-                prefix = prefix + '│' + ' '*(SPACE-1)
+                prefix = prefix + '│' + ' ' * (SPACE - 1)
         if self.depth > 0:
             if self.is_lastoflist:
-                prefix = prefix + '└' + '─'*(SPACE-2) + ' '
+                prefix = prefix + '└' + '─' * (SPACE - 2) + ' '
             else:
-                prefix = prefix + '├' + '─'*(SPACE-2) + ' '
+                prefix = prefix + '├' + '─' * (SPACE - 2) + ' '
         print(prefix, end='')
 
         if os.path.isdir(self.val):
@@ -130,8 +97,7 @@ class TreeNode():
 
     @staticmethod
     def print_tree_simple(filepath, depth, dfc, max_depth=None,
-                          ignore_hidden=True, ignore_regular=False,
-                          ignore_files=None):
+                          ignore_hidden=True):
         if max_depth is not None and depth > max_depth:
             return
 
@@ -142,11 +108,10 @@ class TreeNode():
             filename = filepath.split('/')[-1]
 
             if os.path.isdir(filepath):
-                dfc.set_char_with_n(directory_color)
+                dfc.set_char_with_n(DIRECTORY_COLOR)
                 dfc.set_char_bold()
-            for color_suffix in color_suffixes:
-                if suffix(filename) == color_suffix[0]:
-                    dfc.set_char_with_n(color_suffix[1])
+            if suffix_color_code := COLOR_SUFFIXES.get(suffix(filename)):
+                dfc.set_char_with_n(suffix_color_code)
 
             print(filename)
 
@@ -156,20 +121,17 @@ class TreeNode():
         _print_filename(filepath=filepath, depth=depth)
 
         listdir = os.listdir(filepath)
-        listdir = TreeNode.filter_files(listdir,
-                                        ignore_hidden=ignore_hidden,
-                                        ignore_regular=ignore_regular,
-                                        ignore_files=ignore_files)
+        listdir = [filename for filename in listdir if filename not in IGNORE_FILES]
+        if ignore_hidden:
+            listdir = [filename for filename in listdir if not filename.startswith(".")]
         listdir = [filepath + '/' + x for x in listdir]
 
         for childpath in listdir:
             if os.path.isdir(childpath):
-                TreeNode.print_tree_simple(childpath, depth=depth+1, dfc=dfc,
-                                           ignore_hidden=ignore_hidden,
-                                           ignore_regular=ignore_regular,
-                                           ignore_files=ignore_files)
+                TreeNode.print_tree_simple(childpath, depth=depth + 1, dfc=dfc,
+                                           ignore_hidden=ignore_hidden)
             else:
-                _print_filename(filepath=childpath, depth=depth+1)
+                _print_filename(filepath=childpath, depth=depth + 1)
 
 
 def parse(argv=sys.argv):
@@ -193,14 +155,6 @@ def parse(argv=sys.argv):
         action='store_true',
         help='also show hidden files')
     parser.add_argument(
-        '--only-hidden',
-        action='store_true',
-        help='show only hidden paths')
-    parser.add_argument(
-        '--find-hidden',
-        action='store_true',
-        help='find hidden files')
-    parser.add_argument(
         '-d',
         '--depth',
         type=int,
@@ -210,10 +164,6 @@ def parse(argv=sys.argv):
         '--simple',
         action='store_true',
         help='show a simple tree')
-    parser.add_argument(
-        '--ignore',
-        nargs='*',
-        help='set specific ignore files')
 
     args = parser.parse_args(argv[1:])
     return args
@@ -232,31 +182,16 @@ def main():
             args.root = os.getcwd() + '/' + args.root
 
     ignore_hidden = True
-    ignore_regular = False
     if args.show_hidden:
-        ignore_hidden = False
-    if args.only_hidden:
-        ignore_hidden = False
-        ignore_regular = True
-    if args.find_hidden:
         ignore_hidden = False
 
     if args.simple:
         TreeNode.print_tree_simple(args.root, depth=0,
                                    dfc=display.DisplayFormatChanger(),
-                                   ignore_hidden=ignore_hidden,
-                                   ignore_regular=ignore_regular,
-                                   ignore_files=args.ignore)
+                                   ignore_hidden=ignore_hidden)
         return
 
     root = TreeNode(val=args.root, dfc=display.DisplayFormatChanger())
-    root.build_tree(ignore_hidden=ignore_hidden,
-                    ignore_regular=ignore_regular,
-                    ignore_files=args.ignore)
-    # The process for --find-hidden seems not efficient
-    if args.find_hidden:
-        root.set_has_hidden_child()
-        root.prune_regular_file()
-        root.set_last_again()
+    root.build_tree(ignore_hidden=ignore_hidden)
 
     root.print_tree(max_depth=args.depth)
