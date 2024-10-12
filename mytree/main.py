@@ -5,7 +5,7 @@ import sys
 import mytree
 from mytree import display
 
-from .constants import (
+from mytree.constants import (
     COLOR_SUFFIXES,
     DIRECTORY_COLOR,
     SPACE,

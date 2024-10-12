@@ -11,4 +11,4 @@ requires-python = ">=3.12"
 dependencies = []
 
 [project.scripts]
-mytree = "mytree.mytree:main"
+mytree = "mytree.main:main"
