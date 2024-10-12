@@ -8,9 +8,18 @@ from mytree import display
 from .constants import (
     COLOR_SUFFIXES,
     DIRECTORY_COLOR,
-    IGNORE_FILES,
     SPACE,
 )
+
+
+def get_filenames_to_ignore() -> list[str]:
+    try:
+        with open(os.path.expanduser("~/.mytreeignore"), "r") as f:
+            return [
+                line.strip() for line in f if not line.startswith("#") and line.strip()
+            ]
+    except FileNotFoundError:
+        return []
 
 
 def suffix(filename):
@@ -28,9 +37,18 @@ class TreeNode:
         self.depth = depth
         self.dfc = dfc
 
-    def build_tree(self, ignore_hidden=True, ignore_regular=False):
+    def build_tree(
+        self,
+        ignore_hidden=True,
+        ignore_regular=False,
+        filenames_to_ignore: list[str] | None = None,
+    ):
         listdir = os.listdir(self.val)
-        listdir = [filename for filename in listdir if filename not in IGNORE_FILES]
+        listdir = [
+            filename
+            for filename in listdir
+            if filename not in (filenames_to_ignore or [])
+        ]
         if ignore_hidden:
             listdir = [filename for filename in listdir if not filename.startswith(".")]
         listdir = [self.val + "/" + x for x in listdir]
@@ -91,7 +109,13 @@ class TreeNode:
             child.print_tree()
 
     @staticmethod
-    def print_tree_simple(filepath, depth, dfc, ignore_hidden=True):
+    def print_tree_simple(
+        filepath,
+        depth,
+        dfc,
+        ignore_hidden=True,
+        filenames_to_ignore: list[str] | None = None,
+    ):
         def _print_filename(filepath, depth, dfc=dfc):
             prefix = " " * 2 * depth + "|-"
             print(prefix, end="")
@@ -112,7 +136,11 @@ class TreeNode:
         _print_filename(filepath=filepath, depth=depth)
 
         listdir = os.listdir(filepath)
-        listdir = [filename for filename in listdir if filename not in IGNORE_FILES]
+        listdir = [
+            filename
+            for filename in listdir
+            if filename not in (filenames_to_ignore or [])
+        ]
         if ignore_hidden:
             listdir = [filename for filename in listdir if not filename.startswith(".")]
         listdir = [filepath + "/" + x for x in listdir]
@@ -170,10 +198,13 @@ def main():
             depth=0,
             dfc=display.DisplayFormatChanger(),
             ignore_hidden=ignore_hidden,
+            filenames_to_ignore=get_filenames_to_ignore(),
         )
         return
 
     root = TreeNode(val=args.root, dfc=display.DisplayFormatChanger())
-    root.build_tree(ignore_hidden=ignore_hidden)
+    root.build_tree(
+        ignore_hidden=ignore_hidden, filenames_to_ignore=get_filenames_to_ignore()
+    )
 
     root.print_tree()

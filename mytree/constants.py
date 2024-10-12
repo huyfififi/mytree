@@ -8,5 +8,3 @@ COLOR_SUFFIXES = {
     "py": 14,
     # "txt": 7,
 }
-
-IGNORE_FILES = {"__pycache__"}
