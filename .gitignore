@@ -1,4 +1,13 @@
+# Python
 __pycache__/
 venv/
+
+# Python Distribution
+build/
+*.egg-info/
+
+# MacBook
 .DS_Store
+
+# vim
 *.swp

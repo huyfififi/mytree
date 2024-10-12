@@ -1,20 +1,15 @@
 import setuptools
 import distutils
 
-import myTree
+import mytree
 
 distutils.core.setup(
-    name='myTree',
-    version=myTree.__version__,
-    description='Display Directory Tree',
-    # author='Huy Nguyen',
-    url='https://github.com/hn-void/myTree',
+    name="mytree",
+    version=mytree.__version__,
+    description="Display Directory Tree",
+    url="https://github.com/hn-void/mytree",
     packages=setuptools.find_packages(),
-    python_requires='>=3.7',
+    python_requires=">=3.7",
     install_requires=[],
-    entry_points={
-        'console_scripts': [
-            'mytree = myTree.mytree:main'
-        ]
-    }
+    entry_points={"console_scripts": ["mytree = mytree.mytree:main"]},
 )
