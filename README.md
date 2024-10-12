@@ -1,16 +1,15 @@
-## mytree
-
-### Install & Upgrade
-
 ```
 $ pip3 install --upgrade git+https://github.com/huyfififi/mytree.git@main
+$ pwd
+/users/username/mytree
 $ mytree
-FW (./)
-├── Screen Shot 2020-08-09 at 18.30.22.png
-├── first-html.png
-├── FuwaTwi
-│   ├── index.html
-│   └── test.md
-├── front.pdf
-└── back.pdf
+mytree (./)
+├── LICENSE
+├── pyproject.toml
+├── README.md
+└── mytree
+    ├── constants.py
+    ├── __init__.py
+    ├── display.py
+    └── mytree.py
 ```
