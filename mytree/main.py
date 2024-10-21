@@ -33,16 +33,6 @@ class MyTreeConfig:
         return
 
 
-def get_filenames_to_ignore() -> list[str]:
-    try:
-        with open(os.path.expanduser("~/.mytreeignore"), "r") as f:
-            return [
-                line.strip() for line in f if not line.startswith("#") and line.strip()
-            ]
-    except FileNotFoundError:
-        return []
-
-
 def suffix(filename):
     return filename.split(".")[-1]
 
