@@ -1,4 +1,5 @@
 import argparse
+import json
 import os
 import sys
 
@@ -10,6 +11,26 @@ from mytree.constants import (
     DIRECTORY_COLOR,
     SPACE,
 )
+
+
+class MyTreeConfig:
+    KEY_FILENAMES_TO_IGNORE = "FILENAMES_TO_IGNORE"
+
+    def __init__(self, filename: str = ".mytree.json") -> None:
+        config_path: str = os.path.expanduser(f"~/{filename}")
+        if not os.path.exists(config_path):
+            self.filenames_to_ignore = []
+            return
+
+        config: dict = {}
+        with open(config_path, "r") as f:
+            config = json.loads(f.read())
+
+        self.filenames_to_ignore = config.get(self.KEY_FILENAMES_TO_IGNORE, [])
+        assert isinstance(self.filenames_to_ignore, list) and all(
+            isinstance(x, str) for x in self.filenames_to_ignore
+        ), "FILENAMES_TO_IGNORE must be a list of strings"
+        return
 
 
 def get_filenames_to_ignore() -> list[str]:
@@ -27,7 +48,7 @@ def suffix(filename):
 
 
 class TreeNode:
-    def __init__(self, val=None, depth=0, dfc=None):
+    def __init__(self, config: MyTreeConfig, val=None, depth=0, dfc=None):
         self.val = val
         self.filename = self.val.split("/")[-1] if self.val else None
         self.children = []
@@ -36,6 +57,7 @@ class TreeNode:
         self.has_hidden = None
         self.depth = depth
         self.dfc = dfc
+        self.config = config
 
     def build_tree(
         self,
@@ -55,7 +77,9 @@ class TreeNode:
 
         for i in range(len(listdir)):
             child = listdir[i]
-            node = TreeNode(val=child, dfc=self.dfc, depth=self.depth + 1)
+            node = TreeNode(
+                val=child, dfc=self.dfc, depth=self.depth + 1, config=self.config
+            )
             if i == len(listdir) - 1:
                 node.is_lastoflist = True
             node.parents_islast = self.parents_islast.copy()
@@ -202,7 +226,12 @@ def main():
         )
         return
 
-    root = TreeNode(val=args.root, dfc=display.DisplayFormatChanger())
+    config = MyTreeConfig()
+    root = TreeNode(
+        val=args.root,
+        dfc=display.DisplayFormatChanger(),
+        config=config,
+    )
     root.build_tree(
         ignore_hidden=ignore_hidden, filenames_to_ignore=get_filenames_to_ignore()
     )

@@ -1,0 +1,9 @@
+{
+    "FILENAMES_TO_IGNORE": [
+        ".DS_Store",
+        ".git",
+        "build",
+        "__pycache__",
+        "mytree.egg-info"
+    ]
+}
