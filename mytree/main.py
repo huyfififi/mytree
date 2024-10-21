@@ -16,21 +16,35 @@ from mytree.constants import (
 
 class MyTreeConfig:
     KEY_FILENAMES_TO_IGNORE = "FILENAMES_TO_IGNORE"
+    KEY_DIRECTORY_COLOR = "DIRECTORY_COLOR"
+    DEFAULT_DIRECTORY_COLOR = 202
+
+    def __update_config(self, config: dict) -> None:
+        if self.KEY_FILENAMES_TO_IGNORE in config:
+            self.filenames_to_ignore = config[self.KEY_FILENAMES_TO_IGNORE]
+            assert isinstance(self.filenames_to_ignore, list) and all(
+                isinstance(x, str) for x in self.filenames_to_ignore
+            ), "FILENAMES_TO_IGNORE must be a list of strings"
+
+        if self.KEY_DIRECTORY_COLOR in config:
+            self.directory_color = config[self.KEY_DIRECTORY_COLOR]
+            assert isinstance(
+                self.directory_color, int
+            ), "DIRECTORY_COLOR must be an integer"
+            assert 0 <= self.directory_color <= 255, "DIRECTORY_COLOR must be 0~255"
 
     def __init__(self, filename: str = ".mytree.json") -> None:
+        self.filenames_to_ignore = []
+        self.directory_color = self.DEFAULT_DIRECTORY_COLOR
+
+        # Update config from file if exists
         config_path: str = os.path.expanduser(f"~/{filename}")
         if not os.path.exists(config_path):
-            self.filenames_to_ignore = []
             return
 
-        config: dict = {}
         with open(config_path, "r") as f:
-            config = json.loads(f.read())
+            self.__update_config(json.loads(f.read()))
 
-        self.filenames_to_ignore = config.get(self.KEY_FILENAMES_TO_IGNORE, [])
-        assert isinstance(self.filenames_to_ignore, list) and all(
-            isinstance(x, str) for x in self.filenames_to_ignore
-        ), "FILENAMES_TO_IGNORE must be a list of strings"
         return
 
 
