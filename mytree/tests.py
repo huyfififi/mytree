@@ -8,8 +8,9 @@ class TestMyTreeConfig(unittest.TestCase):
     @patch("os.path.exists", return_value=False)
     def test_default_config(self, mock_exists):
         config = MyTreeConfig()
-        self.assertEqual(config.filenames_to_ignore, [])
+        self.assertEqual(config.filenames_to_ignore, [".git", "__pycache__"])
         self.assertEqual(config.directory_color, 202)
+        self.assertEqual(config.file_colors, {".py": 14})
 
         mock_exists.assert_called_once()
 

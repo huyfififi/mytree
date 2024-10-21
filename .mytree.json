@@ -4,7 +4,12 @@
         ".git",
         "build",
         "__pycache__",
+        ".ruff_cache",
         "mytree.egg-info"
     ],
-    "DIRECTORY_COLOR": 202
+    "DIRECTORY_COLOR": 202,
+    "FILE_COLORS": {
+        "py": 14,
+        "md": 90
+    }
 }

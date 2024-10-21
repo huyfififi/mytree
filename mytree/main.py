@@ -7,17 +7,15 @@ import mytree
 from mytree import decoration
 from mytree.decoration import pretty_print
 
-from mytree.constants import (
-    COLOR_SUFFIXES,
-    DIRECTORY_COLOR,
-    SPACE,
-)
-
 
 class MyTreeConfig:
     KEY_FILENAMES_TO_IGNORE = "FILENAMES_TO_IGNORE"
     KEY_DIRECTORY_COLOR = "DIRECTORY_COLOR"
+    KEY_FILE_COLORS = "FILE_COLORS"
+    DEFAULT_FILENAMES_TO_IGNORE = [".git", "__pycache__"]
     DEFAULT_DIRECTORY_COLOR = 202
+    DEFAULT_FILE_COLORS = {"py": 14}
+    DEFAULT_SPACE = 4
 
     def __update_config(self, config: dict) -> None:
         if self.KEY_FILENAMES_TO_IGNORE in config:
@@ -33,9 +31,17 @@ class MyTreeConfig:
             ), "DIRECTORY_COLOR must be an integer"
             assert 0 <= self.directory_color <= 255, "DIRECTORY_COLOR must be 0~255"
 
+        if self.KEY_FILE_COLORS in config:
+            self.file_colors = config[self.KEY_FILE_COLORS]
+            assert isinstance(self.file_colors, dict) and all(
+                isinstance(x, int) for x in self.file_colors.values()
+            ), "FILE_COLORS must be a dictionary of string to integer"
+
     def __init__(self, filename: str = ".mytree.json") -> None:
-        self.filenames_to_ignore = []
-        self.directory_color = self.DEFAULT_DIRECTORY_COLOR
+        self.filenames_to_ignore: list = self.DEFAULT_FILENAMES_TO_IGNORE
+        self.directory_color: int = self.DEFAULT_DIRECTORY_COLOR
+        self.file_colors: dict[str, int] = self.DEFAULT_FILE_COLORS
+        self.space: int = self.DEFAULT_SPACE
 
         # Update config from file if exists
         config_path: str = os.path.expanduser(f"~/{filename}")
@@ -113,26 +119,25 @@ class TreeNode:
         prefix = ""
         for is_last in list_lasts:
             if is_last:
-                prefix = prefix + " " * (SPACE)
+                prefix = prefix + " " * (self.config.space)
             else:
-                prefix = prefix + "│" + " " * (SPACE - 1)
+                prefix = prefix + "│" + " " * (self.config.space - 1)
         if self.depth > 0:
             if self.is_lastoflist:
-                prefix = prefix + "└" + "─" * (SPACE - 2) + " "
+                prefix = prefix + "└" + "─" * (self.config.space - 2) + " "
             else:
-                prefix = prefix + "├" + "─" * (SPACE - 2) + " "
+                prefix = prefix + "├" + "─" * (self.config.space - 2) + " "
         print(prefix, end="")
 
-        if os.path.isdir(self.val):
-            self.dfc.set_char_with_n(DIRECTORY_COLOR)
-            self.dfc.set_char_bold()
-        if suffix_color_code := COLOR_SUFFIXES.get(suffix(self.filename)):
-            self.dfc.set_char_with_n(suffix_color_code)
-        if os.getcwd() == self.val:
-            self.filename = self.filename + " (./)"
-        print(self.filename)
-        if self.dfc.is_changed:
-            self.dfc.reset_change()
+        if os.path.isdir(self.filename):
+            if os.getcwd() == self.val:
+                self.filename = self.filename + " (./)"
+            pretty_print(self.filename, color=self.config.directory_color, bold=True)
+        elif suffix_color_code := self.config.file_colors.get(suffix(self.filename)):
+            pretty_print(self.filename, color=suffix_color_code)
+        else:
+            print(self.filename)
+
         for child in self.children:
             child.print_tree()
 
@@ -151,7 +156,7 @@ class TreeNode:
 
             if os.path.isdir(filepath):
                 pretty_print(filename, color=config.directory_color, bold=True)
-            elif suffix_color_code := COLOR_SUFFIXES.get(suffix(filename)):
+            elif suffix_color_code := config.file_colors.get(suffix(filename)):
                 pretty_print(filename, color=suffix_color_code)
             else:
                 print(filename)
