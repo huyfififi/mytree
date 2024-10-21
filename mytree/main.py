@@ -150,7 +150,7 @@ class TreeNode:
             filename = filepath.split("/")[-1]
 
             if os.path.isdir(filepath):
-                pretty_print(filename, color=DIRECTORY_COLOR, bold=True)
+                pretty_print(filename, color=config.directory_color, bold=True)
             elif suffix_color_code := COLOR_SUFFIXES.get(suffix(filename)):
                 pretty_print(filename, color=suffix_color_code)
             else:
