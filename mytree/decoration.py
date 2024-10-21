@@ -1,3 +1,18 @@
+def pretty_print(s: str, color: int = -1, bold: bool = False, end="\n") -> None:
+    if bold:
+        print("\033[1m", end="")  # set bold
+
+    if color != -1:
+        assert 0 <= color <= 255, "color must be 0~255"
+        print(f"\033[38;5;{color}m", end="")  # set color
+
+    print(s, end="")
+
+    print("\033[0m", end="")  # reset all format
+
+    print("", end=end)
+
+
 class DisplayFormatChanger:
     def __init__(self):
         self.__charfont_changed = False

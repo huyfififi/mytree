@@ -4,7 +4,8 @@ import os
 import sys
 
 import mytree
-from mytree import display
+from mytree import decoration
+from mytree.decoration import pretty_print
 
 from mytree.constants import (
     COLOR_SUFFIXES,
@@ -125,26 +126,21 @@ class TreeNode:
     def print_tree_simple(
         filepath,
         depth,
-        dfc,
         config: MyTreeConfig,
         ignore_hidden=True,
     ):
-        def _print_filename(filepath, depth, dfc=dfc):
+        def _print_filename(filepath, depth):
             prefix = " " * 2 * depth + "|-"
             print(prefix, end="")
 
             filename = filepath.split("/")[-1]
 
             if os.path.isdir(filepath):
-                dfc.set_char_with_n(DIRECTORY_COLOR)
-                dfc.set_char_bold()
-            if suffix_color_code := COLOR_SUFFIXES.get(suffix(filename)):
-                dfc.set_char_with_n(suffix_color_code)
-
-            print(filename)
-
-            if dfc.is_changed:
-                dfc.reset_change()
+                pretty_print(filename, color=DIRECTORY_COLOR, bold=True)
+            elif suffix_color_code := COLOR_SUFFIXES.get(suffix(filename)):
+                pretty_print(filename, color=suffix_color_code)
+            else:
+                print(filename)
 
         _print_filename(filepath=filepath, depth=depth)
 
@@ -163,7 +159,6 @@ class TreeNode:
                 TreeNode.print_tree_simple(
                     childpath,
                     depth=depth + 1,
-                    dfc=dfc,
                     ignore_hidden=ignore_hidden,
                     config=config,
                 )
@@ -215,7 +210,6 @@ def main():
         TreeNode.print_tree_simple(
             args.root,
             depth=0,
-            dfc=display.DisplayFormatChanger(),
             ignore_hidden=ignore_hidden,
             config=config,
         )
@@ -223,7 +217,7 @@ def main():
 
     root = TreeNode(
         val=args.root,
-        dfc=display.DisplayFormatChanger(),
+        dfc=decoration.DisplayFormatChanger(),
         config=config,
     )
     root.build_tree(ignore_hidden=ignore_hidden)
