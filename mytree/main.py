@@ -63,13 +63,12 @@ class TreeNode:
         self,
         ignore_hidden=True,
         ignore_regular=False,
-        filenames_to_ignore: list[str] | None = None,
     ):
         listdir = os.listdir(self.val)
         listdir = [
             filename
             for filename in listdir
-            if filename not in (filenames_to_ignore or [])
+            if filename not in (self.config.filenames_to_ignore or [])
         ]
         if ignore_hidden:
             listdir = [filename for filename in listdir if not filename.startswith(".")]
@@ -137,8 +136,8 @@ class TreeNode:
         filepath,
         depth,
         dfc,
+        config: MyTreeConfig,
         ignore_hidden=True,
-        filenames_to_ignore: list[str] | None = None,
     ):
         def _print_filename(filepath, depth, dfc=dfc):
             prefix = " " * 2 * depth + "|-"
@@ -163,7 +162,7 @@ class TreeNode:
         listdir = [
             filename
             for filename in listdir
-            if filename not in (filenames_to_ignore or [])
+            if filename not in (config.filenames_to_ignore or [])
         ]
         if ignore_hidden:
             listdir = [filename for filename in listdir if not filename.startswith(".")]
@@ -172,7 +171,11 @@ class TreeNode:
         for childpath in listdir:
             if os.path.isdir(childpath):
                 TreeNode.print_tree_simple(
-                    childpath, depth=depth + 1, dfc=dfc, ignore_hidden=ignore_hidden
+                    childpath,
+                    depth=depth + 1,
+                    dfc=dfc,
+                    ignore_hidden=ignore_hidden,
+                    config=config,
                 )
             else:
                 _print_filename(filepath=childpath, depth=depth + 1)
@@ -216,24 +219,23 @@ def main():
     if args.show_hidden:
         ignore_hidden = False
 
+    config = MyTreeConfig()
+
     if args.simple:
         TreeNode.print_tree_simple(
             args.root,
             depth=0,
             dfc=display.DisplayFormatChanger(),
             ignore_hidden=ignore_hidden,
-            filenames_to_ignore=get_filenames_to_ignore(),
+            config=config,
         )
         return
 
-    config = MyTreeConfig()
     root = TreeNode(
         val=args.root,
         dfc=display.DisplayFormatChanger(),
         config=config,
     )
-    root.build_tree(
-        ignore_hidden=ignore_hidden, filenames_to_ignore=get_filenames_to_ignore()
-    )
+    root.build_tree(ignore_hidden=ignore_hidden)
 
     root.print_tree()

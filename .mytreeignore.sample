@@ -1,3 +1,0 @@
-# This configuration must be placed at ~/.mytreeignore
-build
-__pycache__
