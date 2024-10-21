@@ -10,6 +10,7 @@
     "DIRECTORY_COLOR": 202,
     "FILE_COLORS": {
         "py": 14,
-        "md": 90
+        "md": 90,
+        "yml": 40
     }
 }
