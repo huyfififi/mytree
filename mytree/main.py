@@ -4,7 +4,6 @@ import os
 import sys
 
 import mytree
-from mytree import decoration
 from mytree.decoration import pretty_print
 
 
@@ -59,21 +58,20 @@ def suffix(filename):
 
 
 class TreeNode:
-    def __init__(self, config: MyTreeConfig, val=None, depth=0, dfc=None):
+    def __init__(self, config: MyTreeConfig, val: str, depth: int = 0):
         self.val = val
         self.filename = self.val.split("/")[-1] if self.val else None
-        self.children = []
-        self.is_lastoflist = False
+        self.children: list["TreeNode"] = []
+        self.is_lastoflist: bool = False
         self.parents_islast = []
-        self.has_hidden = None
-        self.depth = depth
-        self.dfc = dfc
-        self.config = config
+        self.has_hidden: bool = False
+        self.depth: int = depth
+        self.config: MyTreeConfig = config
 
     def build_tree(
         self,
-        ignore_hidden=True,
-        ignore_regular=False,
+        ignore_hidden: bool = True,
+        ignore_regular: bool = False,
     ):
         listdir = os.listdir(self.val)
         listdir = [
@@ -87,9 +85,7 @@ class TreeNode:
 
         for i in range(len(listdir)):
             child = listdir[i]
-            node = TreeNode(
-                val=child, dfc=self.dfc, depth=self.depth + 1, config=self.config
-            )
+            node = TreeNode(val=child, depth=self.depth + 1, config=self.config)
             if i == len(listdir) - 1:
                 node.is_lastoflist = True
             node.parents_islast = self.parents_islast.copy()
@@ -143,11 +139,11 @@ class TreeNode:
 
     @staticmethod
     def print_tree_simple(
-        filepath,
-        depth,
+        filepath: str,
+        depth: int,
         config: MyTreeConfig,
-        ignore_hidden=True,
-    ):
+        ignore_hidden: bool = True,
+    ) -> None:
         def _print_filename(filepath, depth):
             prefix = " " * 2 * depth + "|-"
             print(prefix, end="")
@@ -236,9 +232,7 @@ def main():
 
     root = TreeNode(
         val=args.root,
-        dfc=decoration.DisplayFormatChanger(),
         config=config,
     )
     root.build_tree(ignore_hidden=ignore_hidden)
-
     root.print_tree()
