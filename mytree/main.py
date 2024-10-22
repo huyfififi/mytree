@@ -71,7 +71,8 @@ class TreeNode:
         self,
         ignore_hidden: bool = True,
         ignore_regular: bool = False,
-    ):
+    ) -> None:
+        """Build the tree of directories and files using depth-first search (DFS)."""
         listdir = os.listdir(self.val)
         listdir = [
             filename
@@ -131,6 +132,8 @@ class TreeNode:
         config: MyTreeConfig,
         ignore_hidden: bool = True,
     ) -> None:
+        """Print a simple tree of directories and files using depth-first search (DFS)."""
+
         def _print_filename(filepath, depth):
             prefix = " " * 2 * depth + "|-"
             print(prefix, end="")
