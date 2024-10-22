@@ -64,7 +64,6 @@ class TreeNode:
         self.children: list["TreeNode"] = []
         self.is_lastoflist: bool = False
         self.parents_islast = []
-        self.has_hidden: bool = False
         self.depth: int = depth
         self.config: MyTreeConfig = config
 
@@ -97,18 +96,6 @@ class TreeNode:
                 )
 
             self.children.append(node)
-
-    def set_has_hidden_child(self):
-        if len(self.children) == 0:
-            if self.filename[0] == ".":
-                self.has_hidden = True
-            else:
-                self.has_hidden = False
-        else:
-            self.has_hidden = False
-            for child in self.children:
-                child.set_has_hidden_child()
-                self.has_hidden = self.has_hidden or child.has_hidden
 
     def print_tree(self):
         list_lasts = self.parents_islast[1:]
